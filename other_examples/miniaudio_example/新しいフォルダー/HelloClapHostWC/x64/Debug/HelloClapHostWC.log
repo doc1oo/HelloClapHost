@@ -1,0 +1,5 @@
+﻿  HelloClapHostWC.cpp
+C:\Users\master\Documents\GitHub\HelloClapHost\1_miniaudio_only\HelloClapHostWC\HelloClapHostWC.cpp(26,23): warning C4018: '<': signed と unsigned の数値を比較しようとしました。
+C:\Users\master\Documents\GitHub\HelloClapHost\1_miniaudio_only\HelloClapHostWC\HelloClapHostWC.cpp(29,35): warning C4244: '引数': 'double' から 'float' への変換です。データが失われる可能性があります。
+C:\Users\master\Documents\GitHub\HelloClapHost\1_miniaudio_only\HelloClapHostWC\HelloClapHostWC.cpp(29,22): warning C4244: '初期化中': 'double' から 'float' への変換です。データが失われる可能性があります。
+  HelloClapHostWC.vcxproj -> C:\Users\master\Documents\GitHub\HelloClapHost\1_miniaudio_only\x64\Debug\HelloClapHostWC.exe
