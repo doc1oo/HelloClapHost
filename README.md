@@ -9,7 +9,7 @@ Because it omits all error handling, detailed settings, and extended functions, 
 * clap-info https://github.com/free-audio/clap-info
 * clap-host https://github.com/free-audio/clap-host
 
-CLAPホスト開発入門のためのHello worldで、CLAPプラグイン音源で音を鳴らす最小限のサンプルです。エラー処理や詳細設定、拡張機能は一切省いており、実用化には公式サンプルを参考にする必要があります。
+CLAPホスト開発入門のためのHello worldで、CLAPプラグイン音源で「ドレミ……」と音を鳴らす最小限のサンプルです。エラー処理や詳細設定、拡張機能は一切省いており、実用化には公式サンプルを参考にする必要があります。
 
 「自分のPC環境で動いて音が鳴ったコード」であるのは間違いないですが、他の人の環境で動くかは分かりません。自分自身が現状ホスト開発入門者なので間違いがあると思います。またもっと簡単にできるかもしれません。
 
