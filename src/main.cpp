@@ -12,7 +12,7 @@
 #include <memory>
 #include <shlobj.h>
 
-//#include "clap-info-host.h"
+#include "clap-info-host.h"
 
 // pInputに音が入ってくるし、pOutputに音を出力する
 // プラグインの音を取ってきたかったらdaw_engineかdaw_plugin_hostのオーディオバッファを書き換えて、それをコピーするなどする？
@@ -53,6 +53,8 @@ int HelloClapHost::run() {
     
     std::cout << "Test playing CLAP plugin tone for 3 seconds.\n\n";
 
+    std::cout << "Initialising Audio Device.\n";
+
     // DAWオーディオバッファの初期化
     daw_audio_input_buffer.resize(BUFFER_SIZE * 2); // ステレオ
     daw_audio_output_buffer.resize(BUFFER_SIZE * 2);
@@ -64,9 +66,8 @@ int HelloClapHost::run() {
     context_config.threadPriority = ma_thread_priority_highest;
 
     // WASAPIを使用するための設定 ---------------------------------------------------
-    ma_backend backends[] = { ma_backend_wasapi, ma_backend_dsound, ma_backend_winmm };
-
-    if (ma_context_init(backends, 3, &context_config, &context) != MA_SUCCESS)
+    ma_backend backends[] = { ma_backend_wasapi };  //  { ma_backend_wasapi, ma_backend_dsound, ma_backend_winmm };
+    if (ma_context_init(backends, 1, &context_config, &context) != MA_SUCCESS)
     {
         std::cout << "ma_context_init failed." << std::endl;
     }
@@ -80,8 +81,7 @@ int HelloClapHost::run() {
         std::cout << "ma_context_get_devices failed." << std::endl;
     }
 
-    // Loop over each device info and do something with it. Here we just print the name with their index. You may want
-    // to give the user the opportunity to choose which device they'd prefer.
+    // Print audio device information
     for (ma_uint32 iDevice = 0; iDevice < playbackCount; iDevice += 1)
     {
         printf("%d - %s\n", iDevice, pPlaybackInfos[iDevice].name);
@@ -100,8 +100,8 @@ int HelloClapHost::run() {
     // config.playback.channels = DEVICE_CHANNELS;               // Set to 0 to use the device's native channel count.
     // config.sampleRate = DEVICE_SAMPLE_RATE;           // Set to 0 to use the device's native sample rate.
     config.dataCallback = data_callback; // This function will be called when miniaudio needs more data.
-    config.pUserData = nullptr;
-    config.periodSizeInFrames = 1024;
+    config.pUserData = this;            // thisでないとcreate_plugin startで落ちる
+    config.periodSizeInFrames = BUFFER_SIZE;
 
     // WASAPIを使用するように指定
     if (ENABLE_WASAPI_LOW_LATENCY_MODE)
@@ -175,7 +175,7 @@ int HelloClapHost::run() {
     // clap_plugin_entry = clap_scanner::entryFromCLAPPath(clap_path);
 
     std::cout << "LoadLibrary start"<< std::endl;
-    
+
     auto h_module = LoadLibrary((LPCSTR)(clap_path.generic_string().c_str()));
     if (!h_module)
         return -1;
@@ -188,12 +188,16 @@ int HelloClapHost::run() {
 
     if (entry)
     {
+
         clap_plugin_entry = entry;
+
+        std::cout << "Entry init start"<< std::endl;
 
         // clap_plugin_entry_tに対してのinit
         // 実際のプラグインのインスタンスの生成は get_factory(CLAP_PLUGIN_FACTORY_ID);を呼んでclap_plugin_factory_tを取得してから
         entry->init(clap_path.string().c_str()); // q.string()はclapファイルのパス
 
+        std::cout << "Entry init end"<< std::endl;
         // エラー対策
         if (!entry)
         {
@@ -202,6 +206,8 @@ int HelloClapHost::run() {
                       << std::endl;
             return 3;
         }
+
+        std::cout << "get factory start"<< std::endl;
 
         // プラグインファクトリーの取得
         clap_plugin_factory = (clap_plugin_factory_t *)entry->get_factory(CLAP_PLUGIN_FACTORY_ID);
@@ -213,13 +219,17 @@ int HelloClapHost::run() {
             return 4;
         }
 
+        std::cout << "get factory end"<< std::endl;
+
         int select_plugin_index = 0;
+
+        std::cout << "fact->get_plugin_descriptor() start"<< std::endl;
 
         clap_plugin_descriptor = fact->get_plugin_descriptor(fact, select_plugin_index);
         auto &desc = clap_plugin_descriptor;
 
-        // Now lets make an instance
-        /*
+        std::cout << "fact->get_plugin_descriptor() end"<< std::endl;
+
         clap_host = clap_info_host::createCLAPInfoHost();
         auto &host = clap_host;
 
@@ -234,9 +244,13 @@ int HelloClapHost::run() {
         host->request_restart = host_request_restart;
         host->request_process = host_request_process;
         host->request_callback = host_request_callback;
-        */
 
-        clap_plugin = fact->create_plugin(fact, NULL, desc->id);
+        std::cout << "create_plugin start" << std::endl;
+
+        clap_plugin = fact->create_plugin(fact, host, desc->id);
+        
+        std::cout << "create_plugin end" << std::endl;
+
         auto &plugin = clap_plugin;
         if (!plugin)
         {
@@ -244,6 +258,7 @@ int HelloClapHost::run() {
             return 5;
         }
 
+        std::cout << "plugin init start" << std::endl;
         // 実際のプラグインの初期化？
         bool result = plugin->init(plugin);
         if (!result)
@@ -287,6 +302,13 @@ int HelloClapHost::run() {
     return 0;
 }
 
+void HelloClapHost::host_request_restart(const clap_host_t *) {}
+void HelloClapHost::host_request_process(const clap_host_t *) {}
+void HelloClapHost::host_request_callback(const clap_host_t *) {}
+void HelloClapHost::host_log(const clap_host_t *, clap_log_severity severity, const char *msg)
+{
+    std::cerr << "Plugin log: " << msg << std::endl;
+}
 
 /*
 HelloClapHost::~HelloClapHost()

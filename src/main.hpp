@@ -17,6 +17,10 @@ public:
     HelloClapHost();
     int run();
     void process_audio(const float *input, float *output, uint32_t frame_count);
+    static void host_request_restart(const clap_host_t *);
+    static void host_request_process(const clap_host_t *);
+    static void host_request_callback(const clap_host_t *);
+    static void host_log(const clap_host_t *, clap_log_severity severity, const char *msg);
 
     std::vector<float> daw_audio_input_buffer;
     std::vector<float> daw_audio_output_buffer;
