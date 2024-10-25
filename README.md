@@ -1,7 +1,7 @@
 
 # HelloClapHost
 
-HelloClapHost is a simplest CLAP host samples for beginners like a "Hello world". It can only play the notes Do Re Mi using the CLAP plug-in sound source. Now supports Windows only.
+HelloClapHost is a simplest CLAP host samples like a "Hello world" for beginners. It can only play the notes Do Re Mi using the CLAP plug-in sound source. Now supports Windows only.
 
 Because it omits all error handling, detailed settings, and extended functions, so you will need to refer to the follow official samples to put it into practical use.
 
