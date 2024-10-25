@@ -30,8 +30,8 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uin
     {
         ma_float *output = (ma_float *)pOutput;
 
-        output[i * 2 + 0] = host->daw_audio_output_buffer[i];               // 左チャンネル
-        output[i * 2 + 1] = host->daw_audio_output_buffer[i + BUFFER_SIZE]; // 右チャンネル
+        output[i * 2 + 0] = host->daw_audio_output_buffer[i];               // Left channel
+        output[i * 2 + 1] = host->daw_audio_output_buffer[i + BUFFER_SIZE]; // Right channel
     }
 }
 
@@ -91,7 +91,7 @@ int HelloClapHost::run()
     // Set ports -------------------------------------------------------------------
     auto &out = output_clap_audio_buffer;
     out.channel_count = DEVICE_CHANNELS;
-    out.data32 = _outputs; // DawEngine::init()で設定された出力バッファ
+    out.data32 = _outputs;
     out.data64 = nullptr;
     out.constant_mask = 0;
     out.latency = 0;
@@ -106,7 +106,7 @@ int HelloClapHost::run()
     {
         std::cout << i << " - note key: " << play_note_keys[i] << std::endl;
         process_note_on(0, 0, play_note_keys[i], 127);
-        Sleep(1000); // 1秒待機
+        Sleep(1000); // Wait 1 second
         process_note_off(0, 0, play_note_keys[i], 127);
     }
 
@@ -152,7 +152,7 @@ int HelloClapHost::process_note_on(int sample_offset, int channel, int key, int 
     ev.port_index = 0;
     ev.key = key;
     ev.channel = channel;
-    ev.note_id = note_id; // -1はダメらしい。0以上のインクリメントされたユニークを入れる
+    ev.note_id = note_id;
     ev.velocity = velocity / 127.0;
 
     _event_in.push(&ev.header);
