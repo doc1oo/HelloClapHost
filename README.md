@@ -46,6 +46,7 @@ HelloClapHost\build\Debugに実行ファイルが生成されます。
 使用しているライブラリ等についてはそれぞれに定められたライセンスになります。（licenses/を参照のこと）
 * clap
 * clap-info
+* jsoncpp
 * miniaudio
 * clap-saw-demo-imgui
 * RtMidi
