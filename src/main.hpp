@@ -1,5 +1,5 @@
 #define MINIAUDIO_IMPLEMENTATION
-#define NOMINMAX // clap-helperのmin/maxエラー対策
+#define NOMINMAX                // Batting countermeasures for min/max names in clap-helper and windows
 #include "miniaudio.h"
 #include <vector>
 #include <atomic>
