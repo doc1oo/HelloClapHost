@@ -16,19 +16,21 @@ class HelloClapHost
 public:
     HelloClapHost();
     int run();
-    void process_audio(const float *input, float *output, uint32_t frame_count);
+    void plugin_process(const float *input, float *output, uint32_t frame_count);
+    int process_note_on(int sample_offset, int channel, int key, int velocity);
+    int process_note_off(int sample_offset, int channel, int key, int velocity);
     static void host_request_restart(const clap_host_t *);
     static void host_request_process(const clap_host_t *);
     static void host_request_callback(const clap_host_t *);
     static void host_log(const clap_host_t *, clap_log_severity severity, const char *msg);
 
+    int note_id = 0;
+    double g_phase = 0.0;
     std::vector<float> daw_audio_input_buffer;
     std::vector<float> daw_audio_output_buffer;
     std::atomic<bool> is_processing;
 
-
 private:
-    double g_phase = 0.0;
 
     std::string default_clap_folder_path_str = "C:/Program Files/Common Files/CLAP/";
     std::string clap_file_name = "Odin2.clap";
@@ -53,6 +55,7 @@ private:
     clap_process_t clap_process{};
 
 	HMODULE _handle_clap_plugin_module = nullptr;
+
 
     float *_inputs[2] = {nullptr, nullptr};
     float *_outputs[2] = {nullptr, nullptr};
