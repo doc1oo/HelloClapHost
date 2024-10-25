@@ -21,38 +21,31 @@ public:
     int process_note_off(int sample_offset, int channel, int key, int velocity);
 
     int note_id = 0;
-    double g_phase = 0.0;
     std::vector<float> daw_audio_input_buffer;
     std::vector<float> daw_audio_output_buffer;
     std::atomic<bool> is_processing;
 
 private:
+    float *_inputs[2] = {nullptr, nullptr};
+    float *_outputs[2] = {nullptr, nullptr};
 
-    std::string default_clap_folder_path_str = "C:/Program Files/Common Files/CLAP/";
-    std::string clap_file_name = "Odin2.clap";
-    std::string clap_file_path_str;
-
+    // for miniaudio
     ma_context context;
     ma_device device;
     ma_context_config context_config;
-    int device_open_result = -9999;
-    int select_audio_device_id = 2;
 
-	clap_host_t *clap_host = nullptr;
-	clap_plugin_factory_t *clap_plugin_factory = nullptr;
-	const clap_plugin_entry_t *clap_plugin_entry = nullptr;
-	const clap_plugin_t *clap_plugin = nullptr;
-	const clap_plugin_descriptor_t *clap_plugin_descriptor = nullptr;
+    // for clap
+    clap_host_t *clap_host = nullptr;
+    clap_plugin_factory_t *clap_plugin_factory = nullptr;
+    const clap_plugin_entry_t *clap_plugin_entry = nullptr;
+    const clap_plugin_t *clap_plugin = nullptr;
+    const clap_plugin_descriptor_t *clap_plugin_descriptor = nullptr;
 
     clap_audio_buffer_t input_clap_audio_buffer{};
     clap_audio_buffer_t output_clap_audio_buffer{};
-	clap::helpers::EventList _event_in;
-	clap::helpers::EventList _event_out;
-    
+    clap::helpers::EventList _event_in;
+    clap::helpers::EventList _event_out;
     clap_process_t clap_process{};
 
-	HMODULE _handle_clap_plugin_module = nullptr;
-
-    float *_inputs[2] = {nullptr, nullptr};
-    float *_outputs[2] = {nullptr, nullptr};
+    HMODULE _handle_clap_plugin_module = nullptr;
 };

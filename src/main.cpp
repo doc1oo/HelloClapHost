@@ -8,13 +8,13 @@
 #include <numbers>
 #include <string>
 
-
 int main()
 {
     auto host = HelloClapHost();
     host.run();
 }
 
+// miniaudio =====================================================================================
 // miniaudio calls this data_callback function automatic frequently
 void data_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uint32 frameCount)
 {
@@ -33,79 +33,60 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uin
     }
 }
 
-
 // HelloClapHost =====================================================================================
-
 HelloClapHost::HelloClapHost() : is_processing(false)
 {
+    // Init variables ---------------------------------------------------
+    daw_audio_output_buffer.resize(BUFFER_SIZE * 2);        // x2 for stereo
+    _outputs[0] = &daw_audio_output_buffer[0];
+    _outputs[1] = &daw_audio_output_buffer[BUFFER_SIZE];
 }
 
 int HelloClapHost::run()
 {
-    clap_file_path_str = "C:/Program Files/Common Files/CLAP/Odin2.clap";
-    daw_audio_output_buffer.resize(BUFFER_SIZE * 2);        // x2 for stereo
+    // User settings ---------------------------------------------------
+    auto clap_file_path      = "C:/Program Files/Common Files/CLAP/Odin2.clap";
+    int select_plugin_index      = 0;
+    ma_backend backends[]        = {ma_backend_wasapi};        //  { ma_backend_wasapi, ma_backend_dsound, ma_backend_winmm };
+    int backends_count           = 1;
 
-    // Initialising Audio Device ---------------------------------------------------
+    // Initialising Audio Device ----------------------------------------------------------------
     context_config = ma_context_config_init();
-    context_config.threadPriority = ma_thread_priority_highest;
+    ma_context_init(backends, backends_count, &context_config, &context);
 
-    // WASAPIを使用するための設定 ---------------------------------------------------
-    ma_backend backends[] = {ma_backend_wasapi};        //  { ma_backend_wasapi, ma_backend_dsound, ma_backend_winmm };
-    ma_context_init(backends, 1, &context_config, &context);
-
-    ma_device_info *pPlaybackInfos;
-    ma_device_info *pCaptureInfos;
-    ma_uint32 playbackCount;
-    ma_uint32 captureCount;
-    ma_context_get_devices(&context, &pPlaybackInfos, &playbackCount, &pCaptureInfos, &captureCount);
-
-    ma_device_config config = ma_device_config_init(ma_device_type_playback); // 再生モードで初期化
-    config.playback.pDeviceID = &pPlaybackInfos[select_audio_device_id].id; // オーディオデバイス選択
-    config.dataCallback = data_callback; // This function will be called when miniaudio needs more data.
-    config.pUserData = this;             // thisでないとcreate_plugin startで落ちる
+    ma_device_config config = ma_device_config_init(ma_device_type_playback);
+    config.playback.pDeviceID = NULL;
+    config.dataCallback = data_callback;     // This function will be called when miniaudio needs more data.
+    config.pUserData = this;                 // Pass access to this class to data_callback()
     config.periodSizeInFrames = BUFFER_SIZE;
 
     ma_device_init(&context, &config, &device); // Initializing audio device
     ma_device_start(&device); // Start audio device
 
-    // CLAP Plugin Initialization ---------------------------------------------------
-    auto h_module = LoadLibrary((LPCSTR)(clap_file_path_str.c_str()));      // DLL Load
+    // CLAP Plugin Initialization --------------------------------------------------------------------
+    auto h_module = LoadLibrary((LPCSTR)(clap_file_path));      // DLL Load
     _handle_clap_plugin_module = h_module;
 
     auto p_mod = GetProcAddress(h_module, "clap_entry");        // Get entry point
-    auto entry = (clap_plugin_entry_t *)p_mod;
+    clap_plugin_entry = (clap_plugin_entry_t *)p_mod;
 
-    clap_plugin_entry = entry;
-    entry->init(clap_file_path_str.c_str());
+    clap_plugin_entry->init(clap_file_path);                        // Init plugin entry
 
-    clap_plugin_factory = (clap_plugin_factory_t *)entry->get_factory(CLAP_PLUGIN_FACTORY_ID);  // Get plugin factory
-    auto &fact = clap_plugin_factory; // よく使うので名前短縮のため
+    clap_plugin_factory = (clap_plugin_factory_t *)clap_plugin_entry->get_factory(CLAP_PLUGIN_FACTORY_ID);  // Get plugin factory
 
-    int select_plugin_index = 0;
-
+    auto &fact = clap_plugin_factory;
     clap_plugin_descriptor = fact->get_plugin_descriptor(fact, select_plugin_index);
-    auto &desc = clap_plugin_descriptor;
 
     clap_host = clap_info_host::createCLAPInfoHost();
-    auto &host = clap_host;
-    host->host_data = this;
-    host->clap_version = CLAP_VERSION;
+    clap_plugin = fact->create_plugin(fact, clap_host, clap_plugin_descriptor->id);
 
-    clap_plugin = fact->create_plugin(fact, host, desc->id);
     auto &plugin = clap_plugin;
-
     plugin->init(plugin);
-
-    // Activate CLAP plugin ---------------------------------------------------
     plugin->activate(plugin, SAMPLE_RATE, BUFFER_SIZE, BUFFER_SIZE);
     plugin->start_processing(plugin);
 
-    _outputs[0] = &daw_audio_output_buffer[0];
-    _outputs[1] = &daw_audio_output_buffer[BUFFER_SIZE];
-
+    // Set ports -------------------------------------------------------------------
     auto &out = output_clap_audio_buffer;
-
-    // Set ports ---------------------------------------------------
     out.channel_count = DEVICE_CHANNELS;
     out.data32 = _outputs; // DawEngine::init()で設定された出力バッファ
     out.data64 = nullptr;
@@ -125,13 +106,13 @@ int HelloClapHost::run()
         process_note_off(0, 0, play_note_keys[i], 127);
     }
 
-    // deinitializing ---------------------------------------------------
+    // Deinitializing CLAP plugin -------------------------------------------------------------------
     plugin->stop_processing(plugin);
     plugin->deactivate(plugin);
     plugin->destroy(plugin);
     clap_plugin_entry->deinit();
 
-      // finish audio device
+      // Finish audio device ---------------------------------------------------------
     ma_device_uninit(&device);
 
     return 0;
@@ -139,7 +120,7 @@ int HelloClapHost::run()
 
 void HelloClapHost::plugin_process(const float *input, float *output, uint32_t frame_count)
 {
-    printf("processing...\n");
+    std::cout << "plugin_process() processing...\n" << std::endl;
     auto &process = clap_process;
     process.audio_outputs = &output_clap_audio_buffer;
     process.audio_outputs_count = 1;
@@ -157,8 +138,7 @@ void HelloClapHost::plugin_process(const float *input, float *output, uint32_t f
 
 int HelloClapHost::process_note_on(int sample_offset, int channel, int key, int velocity)
 {
-    printf("DawPluginHost::process_note_on() start");
-    // checkForAudioThread();
+    printf("process_note_on() start");
 
     clap_event_note ev;
     ev.header.space_id = CLAP_CORE_EVENT_SPACE_ID;
@@ -173,7 +153,6 @@ int HelloClapHost::process_note_on(int sample_offset, int channel, int key, int 
     ev.velocity = velocity / 127.0;
 
     _event_in.push(&ev.header);
-
     note_id++;
 
     return 0;
@@ -181,9 +160,7 @@ int HelloClapHost::process_note_on(int sample_offset, int channel, int key, int 
 
 int HelloClapHost::process_note_off(int sample_offset, int channel, int key, int velocity)
 {
-
-    printf("DawPluginHost::process_note_off() start");
-    // checkForAudioThread();
+    printf("process_note_off() start");
 
     clap_event_note ev;
     ev.header.space_id = CLAP_CORE_EVENT_SPACE_ID;
@@ -198,9 +175,7 @@ int HelloClapHost::process_note_off(int sample_offset, int channel, int key, int
     ev.velocity = velocity / 127.0;
 
     _event_in.push(&ev.header);
-
     note_id++;
 
     return 0;
 }
-
