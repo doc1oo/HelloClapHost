@@ -30,7 +30,6 @@ private:
 
     std::string default_clap_folder_path_str = "C:/Program Files/Common Files/CLAP/";
     std::string clap_file_name = "Odin2.clap";
-    std::string clap_file_path_str;
 
     ma_context context;
     ma_device device;
