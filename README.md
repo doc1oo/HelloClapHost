@@ -54,4 +54,4 @@ HelloClapHost\build\Debugに実行ファイルが生成されます。
 
 ## 出典
 * miniaudioに関する一部のコードは公式サイトのチュートリアルから引用しています。
-* 一部のコードはclap-hostを参考に書いています。
+* 一部のコードはclap-info、clap-hostを参考に書いています。
