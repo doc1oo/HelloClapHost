@@ -14,6 +14,15 @@
 
 #include "clap-info-host.h"
 
+
+int main()
+{
+    auto host = HelloClapHost();
+    host.run();
+}
+
+// miniaudio calls this data_callback function automatic frequently =====================================================================================
+
 // pInputに音が入ってくるし、pOutputに音を出力する
 // プラグインの音を取ってきたかったらdaw_engineかdaw_plugin_hostのオーディオバッファを書き換えて、それをコピーするなどする？
 void data_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uint32 frameCount)
@@ -38,51 +47,11 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uin
     }
 }
 
+
+// HelloClapHost =====================================================================================
+
 HelloClapHost::HelloClapHost() : is_processing(false)
 {
-}
-
-void HelloClapHost::plugin_process(const float *input, float *output, uint32_t frame_count)
-{
-    
-    // run CLAP process ---------------------------------------------------
-    auto &process = clap_process;
-    process.audio_inputs = &input_clap_audio_buffer;
-    process.audio_inputs_count = 1;
-    process.audio_outputs = &output_clap_audio_buffer;
-    process.audio_outputs_count = 1;
-
-    process.steady_time = -1; // -1は利用不可の場合　前フレームとの差分時間　次のプロセス呼び出しのために少なくとも `frames_count` だけ増加する必要があります。
-    process.frames_count = frame_count;
-
-    process.transport = nullptr;
-
-    process.in_events = _event_in.clapInputEvents();
-    process.out_events = _event_out.clapOutputEvents();
-
-    auto ev_len = _event_in.size();
-    // godot::UtilityFunctions::print(std::format).c_str());
-
-    //_event_out.clear();
-    // generatePluginInputEvents();
-
-    // godot::UtilityFunctions::print(std::format("clap_plugin->process() start / {}, {}", frame_count, BUFFER_SIZE).c_str());
-
-    // clap_plugin->process(clap_plugin, &process);        // 実際のCALPプラグインに処理させる。渡すデータ下手するとアプリごと落ちる
-
-    if (clap_plugin != nullptr)
-    {
-        printf("processing...\n");
-        clap_plugin->process(clap_plugin, &process);
-    }
-    else
-    {
-        printf("clap_plugin is NULL");
-    }
-
-    _event_in.clear();
-    _event_out.clear();
-
 }
 
 int HelloClapHost::run()
@@ -320,15 +289,16 @@ int HelloClapHost::run()
     out.latency = 0;
 
 
-    is_processing = true;
+    is_processing = true;           // if true, data_callback() will call HelloClapHost.plugin_process()
 
-    for (int i = 0; i < 5; i++)
+    // Main Loop  ---------------------------------------------------
+    int play_note_keys[] = {60, 62, 64, 65, 67, 69, 71, 72}; // C-D-E-F-G-A-B-C
+    for (int i = 0; i < 8; i++)
     {
-        std::cout << "Thread processing: " << i << std::endl;
-        process_note_on(0, 0, 60, 127);
+        std::cout << "Processing note: " << i << "key: " << play_note_keys[i] << std::endl;
+        process_note_on(0, 0, play_note_keys[i], 127);
         Sleep(1000); // 1秒待機
-        process_note_off(0, 0, 60, 127);
-
+        process_note_off(0, 0, play_note_keys[i], 127);
     }
 
     // deinitializing ---------------------------------------------------
@@ -363,6 +333,49 @@ int HelloClapHost::run()
 
 
     return 0;
+}
+
+void HelloClapHost::plugin_process(const float *input, float *output, uint32_t frame_count)
+{
+    
+    // run CLAP process ---------------------------------------------------
+    auto &process = clap_process;
+    process.audio_inputs = &input_clap_audio_buffer;
+    process.audio_inputs_count = 1;
+    process.audio_outputs = &output_clap_audio_buffer;
+    process.audio_outputs_count = 1;
+
+    process.steady_time = -1; // -1は利用不可の場合　前フレームとの差分時間　次のプロセス呼び出しのために少なくとも `frames_count` だけ増加する必要があります。
+    process.frames_count = frame_count;
+
+    process.transport = nullptr;
+
+    process.in_events = _event_in.clapInputEvents();
+    process.out_events = _event_out.clapOutputEvents();
+
+    auto ev_len = _event_in.size();
+    // godot::UtilityFunctions::print(std::format).c_str());
+
+    //_event_out.clear();
+    // generatePluginInputEvents();
+
+    // godot::UtilityFunctions::print(std::format("clap_plugin->process() start / {}, {}", frame_count, BUFFER_SIZE).c_str());
+
+    // clap_plugin->process(clap_plugin, &process);        // 実際のCALPプラグインに処理させる。渡すデータ下手するとアプリごと落ちる
+
+    if (clap_plugin != nullptr)
+    {
+        printf("processing...\n");
+        clap_plugin->process(clap_plugin, &process);
+    }
+    else
+    {
+        printf("clap_plugin is NULL");
+    }
+
+    _event_in.clear();
+    _event_out.clear();
+
 }
 
 int HelloClapHost::process_note_on(int sample_offset, int channel, int key, int velocity)
@@ -428,9 +441,3 @@ void HelloClapHost::host_log(const clap_host_t *, clap_log_severity severity, co
 HelloClapHost::~HelloClapHost()
 {
 }*/
-
-int main()
-{
-    auto host = HelloClapHost();
-    host.run();
-}
