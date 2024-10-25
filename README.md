@@ -3,15 +3,16 @@
 
 HelloClapHost is a simplest CLAP host samples for beginners like a "Hello world". It can only play the notes Do Re Mi using the CLAP plug-in sound source. Now supports Windows only.
 
-Because it omits all error handling, detailed settings, and extended functions, so you will need to refer to the official samples to put it into practical use.
+Because it omits all error handling, detailed settings, and extended functions, so you will need to refer to the follow official samples to put it into practical use.
+
+CLAPホスト開発入門のためのHello worldで、CLAPプラグイン音源で「ドレミ……」と音を鳴らす最小限のサンプルです。エラー処理や詳細設定、拡張機能は一切省いており、実用化には以下の公式サンプルを参考にする必要があります。
+
+「自分のPC環境で動いて音が鳴ったコード」であるのは間違いないですが、他の人の環境で動くかは分かりません。自分自身が現状ホスト開発入門者なので間違いがあると思います。またもっと簡単にできるかもしれません。
 
 * clap https://github.com/free-audio/clap
 * clap-info https://github.com/free-audio/clap-info
 * clap-host https://github.com/free-audio/clap-host
 
-CLAPホスト開発入門のためのHello worldで、CLAPプラグイン音源で「ドレミ……」と音を鳴らす最小限のサンプルです。エラー処理や詳細設定、拡張機能は一切省いており、実用化には公式サンプルを参考にする必要があります。
-
-「自分のPC環境で動いて音が鳴ったコード」であるのは間違いないですが、他の人の環境で動くかは分かりません。自分自身が現状ホスト開発入門者なので間違いがあると思います。またもっと簡単にできるかもしれません。
 
 
 ## サンプルの実行
