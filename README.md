@@ -43,8 +43,7 @@ HelloClapHost\build\Debugに実行ファイルが生成されます。
 
 
 ## License
-オリジナル部分のソースコード(少なくともmain.cpp / main.hpp)についてはMITライセンスです。
-その他、使用しているライブラリ等についてはそれぞれに定められたライセンスになります。（licenses/を参照のこと）
+使用しているライブラリ等についてはそれぞれに定められたライセンスになります。（licenses/を参照のこと）
 * clap
 * clap-info
 * miniaudio
