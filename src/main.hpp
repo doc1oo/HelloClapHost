@@ -14,13 +14,14 @@
 class HelloClapHost
 {
 public:
-    HelloClapHost();
+    HelloClapHost(const char *file_path);
     int run();
     void plugin_process(const float *input, float *output, uint32_t frame_count);
     int process_note_on(int sample_offset, int channel, int key, int velocity);
     int process_note_off(int sample_offset, int channel, int key, int velocity);
 
     int note_id = 0;
+    const char *clap_file_path;
     std::vector<float> daw_audio_input_buffer;
     std::vector<float> daw_audio_output_buffer;
     std::atomic<bool> is_processing;

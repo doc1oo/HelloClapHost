@@ -8,14 +8,16 @@
 #include <numbers>
 #include <string>
 
-int main()
+int main(int argc, char *argv[])
 {
-    auto host = HelloClapHost();
+    const char *clap_plugin_file_path = (argc == 2) ? argv[1] : "./clap-saw-demo-imgui.clap";
+
+    auto host = HelloClapHost(clap_plugin_file_path);
     host.run();
 }
 
 // miniaudio =====================================================================================
-// miniaudio calls this data_callback function automatic frequently
+// miniaudio calls this function automatically when it needs more data for the output buffer.
 void data_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uint32 frameCount)
 {
     auto host = static_cast<HelloClapHost *>(pDevice->pUserData);
@@ -34,9 +36,10 @@ void data_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uin
 }
 
 // HelloClapHost =====================================================================================
-HelloClapHost::HelloClapHost() : is_processing(false)
+HelloClapHost::HelloClapHost(const char *file_path) : is_processing(false)
 {
-    // Init variables ---------------------------------------------------
+    clap_file_path = file_path;         // = "C:/Program Files/Common Files/CLAP/Odin2.clap";
+
     daw_audio_output_buffer.resize(BUFFER_SIZE * 2);        // x2 for stereo
     _outputs[0] = &daw_audio_output_buffer[0];
     _outputs[1] = &daw_audio_output_buffer[BUFFER_SIZE];
@@ -45,12 +48,12 @@ HelloClapHost::HelloClapHost() : is_processing(false)
 int HelloClapHost::run()
 {
     // User settings ---------------------------------------------------
-    auto clap_file_path      = "C:/Program Files/Common Files/CLAP/Odin2.clap";
     int select_plugin_index      = 0;
     ma_backend backends[]        = {ma_backend_wasapi};        //  { ma_backend_wasapi, ma_backend_dsound, ma_backend_winmm };
     int backends_count           = 1;
 
     // Initialising Audio Device ----------------------------------------------------------------
+    std::cout << "Initializing audio device and CLAP plugin."  << std::endl;
     context_config = ma_context_config_init();
     ma_context_init(backends, backends_count, &context_config, &context);
 
@@ -93,18 +96,21 @@ int HelloClapHost::run()
     out.constant_mask = 0;
     out.latency = 0;
 
-    // Plugin processing start ---------------------------------------------------
-    is_processing = true;           // if true, data_callback() will call HelloClapHost.plugin_process()
     
-    // Main Loop /////////////////////////////////////////////////////////////////////////
-    int play_note_keys[] = {60, 62, 64, 65, 67, 69, 71, 72}; // C-D-E-F-G-A-B-C
+    // Main  //////////////////////////////////////////////////////////////////////////////////////////////////////
+    is_processing = true;           // if true, data_callback() will call HelloClapHost.plugin_process()
+
+    std::cout << "Now playing notes by the CLAP plugin. (for 8 seconds)"  << std::endl;
+    int play_note_keys[] = {60, 62, 64, 65, 67, 69, 71, 72};    // Note key numbers "C-D-E-F-G-A-B-C"
     for (int i = 0; i < 8; i++)
     {
-        std::cout << "Processing note: " << i << "key: " << play_note_keys[i] << std::endl;
+        std::cout << i << " - note key: " << play_note_keys[i] << std::endl;
         process_note_on(0, 0, play_note_keys[i], 127);
         Sleep(1000); // 1秒待機
         process_note_off(0, 0, play_note_keys[i], 127);
     }
+
+    is_processing = false;
 
     // Deinitializing CLAP plugin -------------------------------------------------------------------
     plugin->stop_processing(plugin);
@@ -120,7 +126,6 @@ int HelloClapHost::run()
 
 void HelloClapHost::plugin_process(const float *input, float *output, uint32_t frame_count)
 {
-    std::cout << "plugin_process() processing...\n" << std::endl;
     auto &process = clap_process;
     process.audio_outputs = &output_clap_audio_buffer;
     process.audio_outputs_count = 1;
@@ -138,8 +143,6 @@ void HelloClapHost::plugin_process(const float *input, float *output, uint32_t f
 
 int HelloClapHost::process_note_on(int sample_offset, int channel, int key, int velocity)
 {
-    printf("process_note_on() start");
-
     clap_event_note ev;
     ev.header.space_id = CLAP_CORE_EVENT_SPACE_ID;
     ev.header.type = CLAP_EVENT_NOTE_ON;
@@ -160,8 +163,6 @@ int HelloClapHost::process_note_on(int sample_offset, int channel, int key, int 
 
 int HelloClapHost::process_note_off(int sample_offset, int channel, int key, int velocity)
 {
-    printf("process_note_off() start");
-
     clap_event_note ev;
     ev.header.space_id = CLAP_CORE_EVENT_SPACE_ID;
     ev.header.type = CLAP_EVENT_NOTE_OFF;
