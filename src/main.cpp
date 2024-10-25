@@ -10,7 +10,7 @@
 
 int main(int argc, char *argv[])
 {
-    const char *clap_plugin_file_path = (argc == 2) ? argv[1] : "./clap-saw-demo-imgui.clap";
+    const char *clap_plugin_file_path = "./clap-saw-demo-imgui.clap";
 
     auto host = HelloClapHost(clap_plugin_file_path);
     host.run();
