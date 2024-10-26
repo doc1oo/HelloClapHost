@@ -1,13 +1,12 @@
 
 # HelloClapHost
 
-HelloClapHost is a simplest CLAP host samples for beginners like a "Hello world". It can only play the notes Do Re Mi using the CLAP plug-in sound source. Now supports Windows only.
+HelloClapHost is a simplest CLAP plugin host samples like a "Hello world" for beginners. It can only play the notes Do Re Mi using the CLAP plug-in sound source. Now supports Windows only.
 
 Because it omits all error handling, detailed settings, and extended functions, so you will need to refer to the follow official samples to put it into practical use.
 
-CLAPホスト開発入門のためのHello worldで、CLAPプラグイン音源で「ドレミ……」と音を鳴らす最小限のサンプルです。エラー処理や詳細設定、拡張機能は一切省いており、実用化には以下の公式サンプルを参考にする必要があります。
-
-「自分のPC環境で動いて音が鳴ったコード」であるのは間違いないですが、他の人の環境で動くかは分かりません。自分自身が現状ホスト開発入門者なので間違いがあると思います。またもっと簡単にできるかもしれません。
+CLAPプラグイン音源で「ドレミ……」と音を鳴らす最小限のサンプルです。お手本というより「たまたま初めてうまく行った例」という意味でのサンプルで、自分自身が現状ホスト開発入門者なので間違いがあると思いますし、もっと簡単にできるかもしれません。また他の人の環境で動くかは分かりません。
+エラー処理や詳細設定、拡張機能は一切省いており、実用化には以下の公式サンプルを参考にする必要があります。
 
 * clap https://github.com/free-audio/clap
 * clap-info https://github.com/free-audio/clap-info
@@ -18,6 +17,8 @@ CLAPホスト開発入門のためのHello worldで、CLAPプラグイン音源�
 ## サンプルの実行
 
 "HelloClapHost.exe" を実行するだけです。（カレントフォルダにclap-saw-demo-imgui.clapを置いている状態で）
+
+https://github.com/user-attachments/assets/75fed85a-77ce-4bc7-9245-dcf12bcbc110
 
 ## コンパイル
 
@@ -43,6 +44,8 @@ HelloClapHost\build\Debugに実行ファイルが生成されます。
 
 
 ## License
+ソースコードのオリジナル部分に関してはMITライセンスとします。ただし、一部のソースコードはclap-info、clap-hostを参考に書いており、miniaudioに関する一部のコードは公式サイトのチュートリアルから引用しています。
+
 使用しているライブラリ等についてはそれぞれに定められたライセンスになります。（licenses/を参照のこと）
 * clap
 * clap-info
@@ -51,7 +54,3 @@ HelloClapHost\build\Debugに実行ファイルが生成されます。
 * miniaudio
 * clap-saw-demo-imgui
 * RtMidi
-
-## 出典
-* miniaudioに関する一部のコードは公式サイトのチュートリアルから引用しています。
-* 一部のコードはclap-info、clap-hostを参考に書いています。
