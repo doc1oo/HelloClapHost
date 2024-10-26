@@ -19,6 +19,8 @@ CLAPホスト開発入門のためのHello worldで、CLAPプラグイン音源�
 
 "HelloClapHost.exe" を実行するだけです。（カレントフォルダにclap-saw-demo-imgui.clapを置いている状態で）
 
+https://github.com/user-attachments/assets/75fed85a-77ce-4bc7-9245-dcf12bcbc110
+
 ## コンパイル
 
 ### 必要なもの
