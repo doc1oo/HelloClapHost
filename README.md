@@ -43,6 +43,8 @@ HelloClapHost\build\Debugに実行ファイルが生成されます。
 
 
 ## License
+ソースコードのオリジナル部分に関してはMITライセンスとします。ただし、一部のソースコードはclap-info、clap-hostを参考に書いており、miniaudioに関する一部のコードは公式サイトのチュートリアルから引用しています。
+
 使用しているライブラリ等についてはそれぞれに定められたライセンスになります。（licenses/を参照のこと）
 * clap
 * clap-info
@@ -51,7 +53,3 @@ HelloClapHost\build\Debugに実行ファイルが生成されます。
 * miniaudio
 * clap-saw-demo-imgui
 * RtMidi
-
-## 出典
-* miniaudioに関する一部のコードは公式サイトのチュートリアルから引用しています。
-* 一部のコードはclap-info、clap-hostを参考に書いています。
