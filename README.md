@@ -5,9 +5,8 @@ HelloClapHost is a simplest CLAP plugin host samples like a "Hello world" for be
 
 Because it omits all error handling, detailed settings, and extended functions, so you will need to refer to the follow official samples to put it into practical use.
 
-CLAPホスト開発入門のためのHello worldで、CLAPプラグイン音源で「ドレミ……」と音を鳴らす最小限のサンプルです。エラー処理や詳細設定、拡張機能は一切省いており、実用化には以下の公式サンプルを参考にする必要があります。
-
-「自分のPC環境で動いて音が鳴ったコード」であるのは間違いないですが、他の人の環境で動くかは分かりません。自分自身が現状ホスト開発入門者なので間違いがあると思います。またもっと簡単にできるかもしれません。
+CLAPプラグイン音源で「ドレミ……」と音を鳴らす最小限のサンプルです。お手本というより「たまたま初めてうまく行った例」という意味でのサンプルで、自分自身が現状ホスト開発入門者なので間違いがあると思いますし、もっと簡単にできるかもしれません。また他の人の環境で動くかは分かりません。
+エラー処理や詳細設定、拡張機能は一切省いており、実用化には以下の公式サンプルを参考にする必要があります。
 
 * clap https://github.com/free-audio/clap
 * clap-info https://github.com/free-audio/clap-info
